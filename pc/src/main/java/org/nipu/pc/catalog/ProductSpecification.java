@@ -1,4 +1,4 @@
-package org.nipu.po.catalog;
+package org.nipu.pc.catalog;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
