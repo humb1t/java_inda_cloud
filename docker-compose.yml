@@ -1,21 +1,49 @@
 version: '2'
 
 services:
-  tomcat:
-    image: 'bitnami/tomcat:latest'
+  eureka:
+    image: springcloud/eureka
     ports:
-      - '8080:8080'
-    environment:
-      - TOMCAT_USERNAME=user
-      - TOMCAT_PASSWORD=password
-      - TOMCAT_ALLOW_REMOTE_MANAGEMENT=1
-    links:
-      - mongo
+      - "8761:8761"
+    networks:
+      - default
   mongo:
     image: mongo
     command: --smallfiles
     ports:
       - "27017:27017"
+  pc:
+      build: pc/
+      ports:
+        - '8081:8080'
+        - '5010:5005'
+      depends_on:
+        - eureka
+        - mongo
+      environment:
+        SPRING_DATA_MONGODB_HOST: mongo
+        EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: 'http://eureka:8761/eureka/'
+      networks:
+        - default
+  po:
+      build: po/
+      ports:
+        - '8082:8080'
+        - '5020:5005'
+      links:
+        - pc
+      depends_on:
+        - eureka
+        - mongo
+        - pc
+      environment:
+        SPRING_DATA_MONGODB_HOST: mongo
+        EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
+        pcurl: 'pc:8080'
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: 'http://eureka:8761/eureka/'
+      networks:
+        - default
 networks:
     default:
         driver: bridge
