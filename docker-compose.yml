@@ -1,19 +1,8 @@
 version: '2'
 
 services:
-  tomcat:
-    image: 'bitnami/tomcat:latest'
-    ports:
-      - '8080:8080'
-    environment:
-      - TOMCAT_USERNAME=user
-      - TOMCAT_PASSWORD=password
-      - TOMCAT_ALLOW_REMOTE_MANAGEMENT=1
-    links:
-      - mongo
   mongo:
     image: mongo
-    command: --smallfiles
     ports:
       - "27017:27017"
 networks:
