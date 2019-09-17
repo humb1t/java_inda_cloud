@@ -15,57 +15,34 @@ Project to show transition from Monolith application to clustered microservice a
 
 ## Microservices
 
+`git checkout microservices` to return.
+
 ### Theory
 
-Microservices - set of *loosely* coupled services.
+Containers engines provide an ability to cut the corners of `VM` style solutions and instead of heavy Guest OS you
+use layered containers.
 
 ### Develop
 
-Split your application into several:
+Create Dockerfiles `cat pc/Dockerfile`:
 
-```xml
-    <modules>
-        <module>pc</module>
-        <module>po</module>
-    </modules>
+```
+FROM openjdk:8-jdk-alpine
+VOLUME /tmp
+EXPOSE 8080
+EXPOSE 5005
+ENV JAVA_OPTS="-Xmx400m -Dfile.encoding=UTF-8 -agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n"
+ADD target/pc-0.0.1-SNAPSHOT.jar app.jar
+ENTRYPOINT exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar
 ```
 
-Catalog in our case would be the same: `cat pc/src/main/java/org/nipu/pc/catalog/ProductSpecificationRepository.java`.
+Use Docker DNS hosts in `application.properties`:
 
-Ordering would have a new configuration: `cat po/src/main/java/org/nipu/po/FeignConfiguration.java`.
-Feign clients make it easier to communicate with different services, as it simply another Java object.
-Let's look into ` po/src/main/java/org/nipu/po/order/clients/ProductSpecificationRepository.java`:
-
-```java
-@FeignClient(name = "catalog", url = "localhost:8081", configuration = FeignConfiguration.class)
-public interface ProductSpecificationRepository {
-
-    @RequestMapping(method = RequestMethod.GET, path = "/catalog/{specificationId}")
-    Object existsById(@PathVariable("specificationId") String specificationId);
-}
-```
-
-And now we can use another services as usual ` po/src/main/java/org/nipu/po/order/OrderController.java`:
-
-```java
-@RestController
-public class OrderController {
-    private final ProductOrderRepository orderRepository;
-    private final ProductSpecificationRepository specificationRepository;
-
-    public OrderController(ProductOrderRepository orderRepository, ProductSpecificationRepository specificationRepository) {
-        this.orderRepository = orderRepository;
-        this.specificationRepository = specificationRepository;
-    }
-
-    @PutMapping("/catalog/{specificationId}/order")
-    public ProductOrder orderProductBySpecificationId(@PathVariable String specificationId) {
-        if (specificationRepository.existsById(specificationId) == null) {
-            throw new RuntimeException("There is no product specification with Id: " + specificationId);
-        }
-        return orderRepository.save(new ProductOrder(null, specificationId, 1l));
-    }
-}
+```properties
+eureka.instance.preferIpAddress=true
+eureka.client.serviceUrl.defaultZone=http://eureka:8761/eureka/
+spring.cloud.config.enabled=false
+spring.application.name=pc
 ```
 
 ### Build
@@ -76,21 +53,21 @@ mvn clean package
 
 ### Prepare environment
 
-```bash
-docker-compose up -d
-```
+Service Discovery:
 
-Update `application.properties` and set different ports for your services.
+```
+services:
+  eureka:
+    image: springcloud/eureka
+    ports:
+      - "8761:8761"
+```
 
 ### Deploy
 
 ```bash
-java -jar pc/target/pc-0.0.1-SNAPSHOT.jar
+docker-compose up -d
 
-```
-
-```bash
-java -jar po/target/po-0.0.1-SNAPSHOT.jar
 ```
 
 ### Use
@@ -131,11 +108,11 @@ curl --request PUT \
 Microservices specific:
 
 - Hard to test
-- Hard to configure deployment
+- -Hard to configure deployment- ?
 - Resources consumption
 
-## Containerization
+## Cloud Orchestration
 
-`git checkout containers` to continue.
+`git checkout minikube` to continue.
 
 
