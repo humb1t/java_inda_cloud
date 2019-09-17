@@ -5,11 +5,8 @@ services:
     image: springcloud/eureka
     ports:
       - "8761:8761"
-    networks:
-      - default
   mongo:
     image: mongo
-    command: --smallfiles
     ports:
       - "27017:27017"
   pc:
@@ -24,8 +21,6 @@ services:
         SPRING_DATA_MONGODB_HOST: mongo
         EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
         EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: 'http://eureka:8761/eureka/'
-      networks:
-        - default
   po:
       build: po/
       ports:
@@ -42,8 +37,6 @@ services:
         EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
         pcurl: 'pc:8080'
         EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: 'http://eureka:8761/eureka/'
-      networks:
-        - default
 networks:
     default:
         driver: bridge
