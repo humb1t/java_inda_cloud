@@ -17,6 +17,8 @@ Project to show transition from Monolith application to clustered microservice a
 
 `git checkout microservices` to return.
 
+## Cloud orchestration
+
 ### Theory
 
 Containers engines provide an ability to cut the corners of `VM` style solutions and instead of heavy Guest OS you
@@ -103,16 +105,8 @@ curl --request PUT \
 - -Limitations of environment scalability-
 - -Problems with development scalability- 
 - -Fixed technical stack-
-- -Infrastructure dependencies- ?
-
-Microservices specific:
-
+- -Infrastructure dependencies- 
 - Hard to test
-- -Hard to configure deployment- ?
+- -Hard to configure deployment- 
 - Resources consumption
-
-## Cloud Orchestration
-
-`git checkout minikube` to continue.
-
 
