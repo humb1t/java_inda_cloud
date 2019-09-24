@@ -10,7 +10,7 @@ services:
     ports:
       - "27017:27017"
   pc:
-      build: pc/
+      image: humb1t/pc
       ports:
         - '8081:8080'
         - '5010:5005'
@@ -22,7 +22,7 @@ services:
         EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
         EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: 'http://eureka:8761/eureka/'
   po:
-      build: po/
+      image: humb1t/po
       ports:
         - '8082:8080'
         - '5020:5005'
